@@ -16,7 +16,7 @@ router.post("/", verifyToken, noteCreationValidator, createNote);
 
 // Retrieve Notes
 router.get("/", getAllNotes);
-router.get("user/", getNotes);
+router.get("/user",verifyToken, getNotes);
 
 // Retrieve Single Note
 router.get("/:id", getNote);

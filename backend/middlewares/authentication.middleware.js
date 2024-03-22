@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const JWT_SECRET = process.env.SECRET;
-//generate a JWT token on user login
+
 function generateToken(user) {
   const payload = {
     userId: user._id,
@@ -9,7 +9,6 @@ function generateToken(user) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "2h" });
 }
 
-//verify the JWT token
 function verifyToken(req, res, next) {
   const token = req.headers.authorization.split(" ")[1];
 
