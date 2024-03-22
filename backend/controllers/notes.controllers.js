@@ -161,6 +161,61 @@ async function deleteNote(req, res) {
   }
 }
 
+// Like a single note by id
+async function likeNote(req, res) {
+  try {
+    const noteId = req.params.id;
+    const userId = req.userId;
+
+    const note = await Note.findById(noteId);
+
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    if (note.likes.includes(userId)) {
+      return res
+        .status(400)
+        .json({ error: "You have already liked this note" });
+    }
+
+    note.likes.push(userId);
+    await note.save();
+
+    res.json({ message: "Note liked successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Comment on a single note by id
+async function commentOnNote(req, res) {
+  try {
+    const noteId = req.params.id;
+    const userId = req.userId;
+    const { text } = req.body;
+
+    const note = await Note.findById(noteId);
+
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    const comment = {
+      user: userId,
+      text,
+    };
+
+    note.comments.push(comment);
+    await note.save();
+
+    res.json({ message: "Comment added successfully", comment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
 module.exports = {
   createNote,
   getAllNotes,
@@ -168,4 +223,6 @@ module.exports = {
   getNote,
   updateNote,
   deleteNote,
+  likeNote,
+  commentOnNote,
 };
