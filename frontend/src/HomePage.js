@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -55,6 +55,12 @@ function HomePage() {
     }
   }
 
+  const inputRef = useRef(null);
+  
+  function handleTitleFocus(){
+    inputRef.current.focus();
+  }
+
   return (
     <div className="container mx-auto p-10">
       <div className="flex justify-between gap-5">
@@ -69,7 +75,9 @@ function HomePage() {
                 name="title"
                 className="w-full p-2 mt-1 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
                 onChange={(event) => setTitle(event.target.value)}
+                ref={inputRef}
               />
+              <button type="button" className="bg-blue-800 text-white p-2 mt-2 rounded" onClick={handleTitleFocus}>Click to Enter Title</button>
             </div>
             <div className="mb-6">
               <label htmlFor="content" className="block font-semibold text-lg">

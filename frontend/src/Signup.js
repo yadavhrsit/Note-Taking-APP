@@ -6,6 +6,7 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [suggestedPassword,setSuggestedPassword] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,6 +29,16 @@ function Signup() {
       setErrorMessage("An error occurred during signup");
     }
   };
+
+  function generatePassword(){
+    const newPassword = Math.random().toString(36).slice(-8); 
+    setSuggestedPassword(newPassword);
+  }
+
+  function copyPassword(){
+    navigator.clipboard.writeText(suggestedPassword);
+    window.alert("Password Copied to Clipboard")
+  }
 
   return (
     <div className="p-10 bg-green-200">
@@ -59,6 +70,16 @@ function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <button
+            type="button"
+            className="bg-green-800 mt-2 p-2"
+            onClick={generatePassword}
+          >
+            Suggest Password
+          </button>
+          {suggestedPassword && (
+            <p className="text-white font-semi-bold cursor-pointer" onClick={copyPassword}>{suggestedPassword}</p>
+          )}
         </div>
         <div className="mb-4">
           <label htmlFor="repeat-password" className="block mb-2">
