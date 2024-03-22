@@ -3,11 +3,12 @@ const Note = require("../models/notes.model");
 // Create a note
 async function createNote(req, res) {
   try {
-    const { title, content, visibility, sharedWith } = req.body;
+    const { title, content, tags, visibility, sharedWith } = req.body;
     const note = await Note.create({
       title,
       content,
       createdBy: req.userId,
+      tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       visibility,
       sharedWith,
     });
@@ -43,9 +44,7 @@ async function getAllNotes(req, res) {
     // Sort by recently commented
     else if (req.query.sortBy === "recently_commented") {
       sortCriteria["comments.createdAt"] = -1;
-    }
-    
-    else {
+    } else {
       sortCriteria.createdAt = -1;
     }
 
@@ -68,7 +67,6 @@ async function getAllNotes(req, res) {
   }
 }
 
-
 // Retrieve all notes of current user
 async function getNotes(req, res) {
   try {
@@ -79,6 +77,11 @@ async function getNotes(req, res) {
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, "i");
       query.title = searchRegex;
+    }
+
+    if (req.query.tags) {
+      const tags = req.query.tags.split(",");
+      query.tags = { $in: tags };
     }
 
     // Sort by most liked
@@ -148,7 +151,7 @@ async function updateNote(req, res) {
     const noteId = req.params.id;
     const userId = req.userId;
 
-    const { title, content, visibility, sharedWith } = req.body;
+    const { title, content,tags, visibility, sharedWith } = req.body;
 
     const note = await Note.findOne({ _id: noteId, createdBy: userId });
 
@@ -160,6 +163,7 @@ async function updateNote(req, res) {
 
     note.title = title;
     note.content = content;
+    note.tags = tags ? tags.split(",").map((tag) => tag.trim()) : [];
     note.visibility = visibility;
     note.sharedWith = sharedWith;
     note.updatedAt = Date.now();
@@ -244,7 +248,6 @@ async function commentOnNote(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
-
 
 module.exports = {
   createNote,

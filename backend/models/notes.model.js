@@ -18,6 +18,13 @@ const noteSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  tags: [
+    {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+  ],
   visibility: {
     type: String,
     enum: ["public", "private"],
