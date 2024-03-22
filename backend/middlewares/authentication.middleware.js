@@ -21,7 +21,7 @@ function verifyToken(req, res, next) {
     if (err) {
       return res.status(401).json({ error: "Login Expired, Please Login again" });
     }
-    req.user = decoded.userId;
+    req.userId = decoded.userId;
 
     next();
   });

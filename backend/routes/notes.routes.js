@@ -6,6 +6,7 @@ const {
   deleteNote,
   updateNote,
   getNote,
+  getAllNotes,
   getNotes,
 } = require("../controllers/notes.controllers");
 const noteCreationValidator = require("../validators/notes.validator");
@@ -14,7 +15,8 @@ const noteCreationValidator = require("../validators/notes.validator");
 router.post("/", verifyToken, noteCreationValidator, createNote);
 
 // Retrieve Notes
-router.get("/", getNotes);
+router.get("/", getAllNotes);
+router.get("user/", getNotes);
 
 // Retrieve Single Note
 router.get("/:id", getNote);

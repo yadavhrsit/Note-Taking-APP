@@ -4,21 +4,80 @@ const Note = require("../models/notes.model");
 async function createNote(req, res) {
   try {
     const { title, content } = req.body;
-    const note = await Note.create({ title, content, createdBy: req.user });
+    const note = await Note.create({ title, content, createdBy: req.userId });
     res.status(201).json(note);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 }
 // retrieve all notes
-async function getNotes(req, res) {
+async function getAllNotes(req, res) {
   try {
-    const notes = await Note.find();
-    res.json(notes);
+    let query = {};
+    let sortCriteria = {};
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      query = { title: searchRegex };
+    }
+    if (req.query.sortBy) {
+      sortCriteria[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const notes = await Note.find(query)
+      .sort(sortCriteria)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      currentPage: page,
+      totalPages: Math.ceil((await Note.countDocuments(query)) / limit),
+      notes,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
+
+// retrieve all notes of current user
+async function getNotes(req, res) {
+  try {
+    const userid = req.userId;
+    let query = { createdBy: userid }; 
+    let sortCriteria = {}; 
+
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      query.title = searchRegex;
+    }
+
+    if (req.query.sortBy) {
+      sortCriteria[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+
+    const notes = await Note.find(query)
+      .sort(sortCriteria)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      currentPage: page,
+      totalPages: Math.ceil((await Note.countDocuments(query)) / limit),
+      notes,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 // retrieve a single note by id
 async function getNote(req, res) {
   try {
@@ -35,7 +94,7 @@ async function getNote(req, res) {
 async function updateNote(req, res) {
   try {
     const noteId = req.params.id;
-    const userId = req.user;
+    const userId = req.userId;
 
     const { title, content } = req.body;
 
@@ -56,6 +115,7 @@ async function updateNote(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
 // delete a single note by id
 async function deleteNote(req, res) {
   try {
@@ -76,9 +136,9 @@ async function deleteNote(req, res) {
   }
 }
 
-
 module.exports = {
   createNote,
+  getAllNotes,
   getNotes,
   getNote,
   updateNote,
