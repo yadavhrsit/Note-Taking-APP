@@ -23,17 +23,30 @@ async function getAllNotes(req, res) {
     let query = {};
     let sortCriteria = {};
 
-    query.visibility = "public";
-    if (req.userId) {
-      query.$or = [{ createdBy: req.userId }, { visibility: "public" }];
-    }
-
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, "i");
       query.title = searchRegex;
     }
-    if (req.query.sortBy) {
-      sortCriteria[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
+
+    // Sort by most liked
+    if (req.query.sortBy === "most_liked") {
+      sortCriteria.likes = -1;
+    }
+    // Sort by most commented
+    else if (req.query.sortBy === "most_commented") {
+      sortCriteria["comments.length"] = -1;
+    }
+    // Sort by recent
+    else if (req.query.sortBy === "recent") {
+      sortCriteria.createdAt = -1;
+    }
+    // Sort by recently commented
+    else if (req.query.sortBy === "recently_commented") {
+      sortCriteria["comments.createdAt"] = -1;
+    }
+    
+    else {
+      sortCriteria.createdAt = -1;
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -55,6 +68,7 @@ async function getAllNotes(req, res) {
   }
 }
 
+
 // Retrieve all notes of current user
 async function getNotes(req, res) {
   try {
@@ -66,8 +80,24 @@ async function getNotes(req, res) {
       const searchRegex = new RegExp(req.query.search, "i");
       query.title = searchRegex;
     }
-    if (req.query.sortBy) {
-      sortCriteria[req.query.sortBy] = req.query.sortOrder === "desc" ? -1 : 1;
+
+    // Sort by most liked
+    if (req.query.sortBy === "most_liked") {
+      sortCriteria.likes = -1;
+    }
+    // Sort by most commented
+    else if (req.query.sortBy === "most_commented") {
+      sortCriteria["comments.length"] = -1;
+    }
+    // Sort by recent
+    else if (req.query.sortBy === "recent") {
+      sortCriteria.createdAt = -1;
+    }
+    // Sort by recently commented
+    else if (req.query.sortBy === "recently_commented") {
+      sortCriteria["comments.createdAt"] = -1;
+    } else {
+      sortCriteria.createdAt = -1;
     }
 
     const page = parseInt(req.query.page) || 1;
