@@ -1,16 +1,27 @@
 const Note = require("../models/notes.model");
+const Sort = require("../helpers/sortCriteria.helper").getSortCriteria;
+const mongoose = require("mongoose");
 
 // Create a note
 async function createNote(req, res) {
   try {
     const { title, content, tags, visibility, sharedWith } = req.body;
+    let validSharedWith = [];
+    if(visibility === "private" && (sharedWith && Array.isArray(sharedWith))){
+      for (let userId of sharedWith) {
+        if (mongoose.Types.ObjectId.isValid(userId)) {
+          validSharedWith.push(userId);
+        }
+      }
+    }
+
     const note = await Note.create({
       title,
       content,
       createdBy: req.userId,
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       visibility,
-      sharedWith,
+      sharedWith: validSharedWith,
     });
     res.status(201).json(note);
   } catch (err) {
@@ -18,61 +29,13 @@ async function createNote(req, res) {
   }
 }
 
-// Retrieve all notes (public or private)
-async function getAllNotes(req, res) {
+
+// Retrieve all notes (public)
+async function getAllPublicNotes(req, res) {
   try {
-    let query = {};
-    let sortCriteria = {};
-
-    if (req.query.search) {
-      const searchRegex = new RegExp(req.query.search, "i");
-      query.title = searchRegex;
-    }
-
-    // Sort by most liked
-    if (req.query.sortBy === "most_liked") {
-      sortCriteria.likes = -1;
-    }
-    // Sort by most commented
-    else if (req.query.sortBy === "most_commented") {
-      sortCriteria["comments.length"] = -1;
-    }
-    // Sort by recent
-    else if (req.query.sortBy === "recent") {
-      sortCriteria.createdAt = -1;
-    }
-    // Sort by recently commented
-    else if (req.query.sortBy === "recently_commented") {
-      sortCriteria["comments.createdAt"] = -1;
-    } else {
-      sortCriteria.createdAt = -1;
-    }
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    const notes = await Note.find(query)
-      .sort(sortCriteria)
-      .skip(skip)
-      .limit(limit);
-
-    res.json({
-      currentPage: page,
-      totalPages: Math.ceil((await Note.countDocuments(query)) / limit),
-      notes,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
-
-// Retrieve all notes of current user
-async function getNotes(req, res) {
-  try {
-    const userId = req.userId;
-    let query = { createdBy: userId };
-    let sortCriteria = {};
+    let query = {
+      visibility: "public",
+    };
 
     if (req.query.search) {
       const searchRegex = new RegExp(req.query.search, "i");
@@ -84,27 +47,54 @@ async function getNotes(req, res) {
       query.tags = { $in: tags };
     }
 
-    // Sort by most liked
-    if (req.query.sortBy === "most_liked") {
-      sortCriteria.likes = -1;
-    }
-    // Sort by most commented
-    else if (req.query.sortBy === "most_commented") {
-      sortCriteria["comments.length"] = -1;
-    }
-    // Sort by recent
-    else if (req.query.sortBy === "recent") {
-      sortCriteria.createdAt = -1;
-    }
-    // Sort by recently commented
-    else if (req.query.sortBy === "recently_commented") {
-      sortCriteria["comments.createdAt"] = -1;
-    } else {
-      sortCriteria.createdAt = -1;
-    }
+    // Sort criteria
+    let sortCriteria = Sort(req.query.sortBy);
 
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const notes = await Note.find(query)
+      .sort(sortCriteria)
+      .skip(skip)
+      .limit(limit);
+
+    const totalNotesCount = await Note.countDocuments(query);
+
+    res.json({
+      currentPage: page,
+      totalPages: Math.ceil(totalNotesCount / limit),
+      notes,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Retrieve all notes of current user
+async function getAllPrivateNotes(req, res) {
+  try {
+    const userId = req.userId;
+    const query = {
+      $or: [{ createdBy: userId }, { sharedWith: { $in: [userId] } }],
+      visibility: "private",
+    };
+
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      query.title = searchRegex;
+    }
+
+    if (req.query.tags) {
+      const tags = req.query.tags.split(",");
+      query.tags = { $in: tags };
+    }
+
+    // Sort criteria
+    let sortCriteria = Sort(req.query.sortBy);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
     const notes = await Note.find(query)
@@ -151,7 +141,7 @@ async function updateNote(req, res) {
     const noteId = req.params.id;
     const userId = req.userId;
 
-    const { title, content,tags, visibility, sharedWith } = req.body;
+    const { title, content, tags, visibility, sharedWith } = req.body;
 
     const note = await Note.findOne({ _id: noteId, createdBy: userId });
 
@@ -251,8 +241,8 @@ async function commentOnNote(req, res) {
 
 module.exports = {
   createNote,
-  getAllNotes,
-  getNotes,
+  getAllPublicNotes,
+  getAllPrivateNotes,
   getNote,
   updateNote,
   deleteNote,

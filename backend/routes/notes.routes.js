@@ -6,8 +6,8 @@ const {
   deleteNote,
   updateNote,
   getNote,
-  getAllNotes,
-  getNotes,
+  getAllPublicNotes,
+  getAllPrivateNotes,
   likeNote,
   commentOnNote,
 } = require("../controllers/notes.controllers");
@@ -17,8 +17,8 @@ const noteCreationValidator = require("../validators/notes.validator");
 router.post("/", verifyToken, noteCreationValidator, createNote);
 
 // Retrieve Notes
-router.get("/", getAllNotes);
-router.get("/user", verifyToken, getNotes);
+router.get("/", getAllPublicNotes);
+router.get("/user", verifyToken, getAllPrivateNotes);
 
 // Retrieve Single Note
 router.get("/:id", getNote);
