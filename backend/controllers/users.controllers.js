@@ -28,20 +28,20 @@ async function login(req, res) {
     const user = await User.findOne({ username });
 
     if (!user) {
-      return res.status(401).json({ error: "Unregistered User" });
+      return res.status(401).json({ message: "Unregistered User" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ error: "You entered wrong Password" });
+      return res.status(401).json({ message: "You entered wrong Password" });
     }
 
     const token = generateToken(user._id);
 
     res.json({ message: "Login successful", token });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ message: err.message });
   }
 }
 module.exports = {

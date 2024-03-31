@@ -13,12 +13,14 @@ function verifyToken(req, res, next) {
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ error: "Login is required" });
+    return res.status(401).json({ message: "Login is required" });
   }
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ error: "Login Expired, Please Login again" });
+      return res
+        .status(401)
+        .json({ message: "Login Expired, Please Login again" });
     }
     req.userId = decoded.userId;
 

@@ -27,8 +27,8 @@ const noteSchema = new mongoose.Schema({
   ],
   visibility: {
     type: String,
-    enum: ["public", "private"],
-    default: "private",
+    enum: ["public", "hidden", "private"],
+    default: "public",
   },
   sharedWith: [
     {

@@ -19,13 +19,13 @@ async function createNote(req, res) {
       title,
       content,
       createdBy: req.userId,
-      tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+      tags: tags ? tags.map((tag) => tag.trim()) : [],
       visibility,
       sharedWith: validSharedWith,
     });
     res.status(201).json(note);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ message: err.message });
   }
 }
 

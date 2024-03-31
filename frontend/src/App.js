@@ -13,14 +13,14 @@ import Error from "./Error";
 function App() {
   return (
     <BrowserRouter>
-      <div className="mb-5 w-full bg-slate-900 flex gap-4 p-2 text-white">
-        <NavLink to={"/"} className="py-3 px-10 bg-red-500">
+      <div className="mb-5 bg-slate-900 flex gap-4 p-2 text-white">
+        <NavLink to={"/"} className="py-3 px-6 bg-red-500">
           Home
         </NavLink>
-        <NavLink to={"/login"} className="py-3 px-10 bg-blue-600">
+        <NavLink to={"/login"} className="py-3 px-6 bg-blue-600">
           Login
         </NavLink>
-        <NavLink to={"/signup"} className="py-3 px-10 bg-green-600">
+        <NavLink to={"/signup"} className="py-3 px-6 bg-green-600">
           Signup
         </NavLink>
       </div>
