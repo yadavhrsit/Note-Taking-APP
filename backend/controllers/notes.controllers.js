@@ -57,7 +57,11 @@ async function getAllPublicNotes(req, res) {
     const notes = await Note.find(query)
       .sort(sortCriteria)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate({
+        path: "createdBy",
+        select: "username",
+      });
 
     const totalNotesCount = await Note.countDocuments(query);
 

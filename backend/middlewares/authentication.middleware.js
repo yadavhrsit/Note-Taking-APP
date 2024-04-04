@@ -13,7 +13,7 @@ function verifyToken(req, res, next) {
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ message: "Login is required" });
+    return res.status(401).json({ message: "Login is required to perform this action" });
   }
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {

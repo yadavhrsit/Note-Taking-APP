@@ -18,13 +18,16 @@ const noteSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  tags: [
-    {
+  tags: {
+    type: [{
       type: String,
       trim: true,
       lowercase: true,
-    },
-  ],
+      minlength:2,
+      maxlength:8,
+    }],
+    validate: [arrayLimit, 'Tags can be maximum 5'],
+  },
   visibility: {
     type: String,
     enum: ["public", "hidden", "private"],
@@ -51,6 +54,8 @@ const noteSchema = new mongoose.Schema({
       text: {
         type: String,
         required: true,
+        minlength:1,
+        maxlength:100,
       },
       createdAt: {
         type: Date,
@@ -68,6 +73,9 @@ const noteSchema = new mongoose.Schema({
   },
 });
 
+function arrayLimit(val) {
+  return val.length <= 5;
+}
 const Note = mongoose.model("Note", noteSchema);
 
 module.exports = Note;
