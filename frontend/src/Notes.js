@@ -1,6 +1,8 @@
 import React from 'react'
 import dayjs from "dayjs"
-function Notes({ loading, notes, currentPage }) {
+import { useNavigate } from 'react-router-dom';
+function Notes({ loading, notes }) {
+  const navigate = useNavigate();
   return (
     <>
       {loading ? (
@@ -8,10 +10,11 @@ function Notes({ loading, notes, currentPage }) {
       ) : (
         <div>
           {notes.length > 0
-            ? notes?.map((note, index) => (
+            ? notes?.map((note) => (
                 <div
-                  key={index}
-                  className="bg-gray-200 rounded-lg p-4 mb-4 shadow"
+                  key={note._id}
+                  className="bg-gray-200 rounded-lg p-4 mb-4 shadow cursor-pointer"
+                  onClick={() => navigate(`note/${note._id}`)}
                 >
                   <h3 className="text-lg font-semibold capitalize whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                     {note.title}

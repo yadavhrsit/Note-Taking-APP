@@ -28,7 +28,27 @@ function verifyToken(req, res, next) {
   });
 }
 
+function verifyUserToken(req, res, next) {
+  try {
+    const token = req.headers.authorization;
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res
+          .status(401)
+          .json({ message: "Login Expired, Please Login again" });
+      }
+      req.userId = decoded.userId;
+
+      next();
+    });
+  } catch (error) {
+    next();
+  }
+  
+}
 module.exports = {
   generateToken,
   verifyToken,
+  verifyUserToken,
 };

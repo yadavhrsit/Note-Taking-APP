@@ -21,7 +21,7 @@ router.get("/", getAllPublicNotes);
 router.get("/user", verifyToken, getAllPrivateNotes);
 
 // Retrieve Single Note
-router.get("/:id", getNote);
+router.get("/:id",  getNote);
 
 // Update Note
 router.put("/:id", verifyToken, noteCreationValidator, updateNote);

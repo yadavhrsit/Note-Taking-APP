@@ -4,10 +4,11 @@ import { BrowserRouter, Routes, Route, NavLink, Navigate } from "react-router-do
 import HomePage from "./HomePage";
 import Signup from "./Signup";
 import Login from "./Login";
-import Profile from "./Profile";
-import Settings from "./Settings";
-import Dashboard from "./Dashboard";
+// import Profile from "./Profile";
+// import Settings from "./Settings";
+
 import Error from "./Error";
+import NoteView from "./NoteView";
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
         <Route path="/" Component={HomePage}></Route>
         <Route path="/login" Component={Login}></Route>
         <Route path="/signup" Component={Signup}></Route>
-        <Route path="/dashboard"></Route>
+        <Route path="/note/:id" Component={NoteView}/>
         <Route path="/error" Component={Error}></Route>
         <Route path="*" element={<Navigate to={"/error"} replace />}></Route>
       </Routes>

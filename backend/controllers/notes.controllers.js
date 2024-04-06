@@ -131,7 +131,7 @@ async function getNote(req, res) {
       ],
     });
     if (!note) {
-      return res.status(404).json({ error: "Note not found" });
+      return res.status(404).json({ error: "Note not found or you are not allowed to view it" });
     }
     res.json(note);
   } catch (err) {
